@@ -11,8 +11,8 @@ const cookieParser = require('cookie-parser');
 const cors = require("cors");
 const hpp = require('hpp');
 const compression = require("compression");
-// const connectDatabase = require('./utils/dataBase');
-// const errorController = require("./controllers/errorController");
+const connectDatabase = require('./utils/dataBase');
+const errorController = require("./controllers/errorController");
 
 // Initialize Express app 
 const app = express();
@@ -43,10 +43,10 @@ app.use('/api', rateLimit({
 
 
 // Connect to the database
-// connectDatabase();
+connectDatabase();
 
 // Error Handling Middleware: Handle requests for undefined routes
-app.all("*", (req, _, next) => {
+app.all("*", (req, res, next) => {
   const err = new Error(`Can't Find ${req.originalUrl}`);
   err.status = "fail";
   err.statusCode = 404;
@@ -54,7 +54,7 @@ app.all("*", (req, _, next) => {
   next(err);
 });
 
-// app.use(errorController)
+app.use(errorController)
 
 // Start the server and listen on the defined port
 app.listen(port, () => {
