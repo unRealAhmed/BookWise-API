@@ -24,7 +24,7 @@ const sendTokenResponse = (res, user, statusCode) => {
 
 //SIGNUP
 exports.signup = asyncHandler(async (req, res, next) => {
-  const { fullname, email, password, passwordConfirm } = req.body;
+  const { name, userName, email, password, passwordConfirm, gender } = req.body;
 
   const emailAlreadyExists = await User.findOne({ email });
 
@@ -33,10 +33,12 @@ exports.signup = asyncHandler(async (req, res, next) => {
   }
 
   const newUser = await User.create({
-    fullname,
+    name,
+    userName,
     email,
     password,
-    passwordConfirm
+    passwordConfirm,
+    gender
   });
 
   newUser.password = undefined;
@@ -110,7 +112,6 @@ exports.protect = asyncHandler(async (req, res, next) => {
       new AppError('You are not logged in! Please log in to get access.', 401)
     );
   }
-
   // 3) Verify the token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
 
@@ -213,7 +214,7 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
   if (!oldPassword || !newPassword) {
     return next(new AppError('Please provide both values', 400))
   }
-
+  console.log(req.user);
   // 1) Find the user by ID and select the password field
   const user = await User.findById(req.user._id).select("+password");
   // 2) Check if the entered current password is correct
@@ -234,10 +235,10 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
     category: "Update Password",
     user_id: {
       id: req.user._id,
-      username: req.user.username,
+      username: req.user.userName,
     },
   });
-  await activity.save();
+  await activity.save({ validateBeforeSave: false });
 
   user.password = undefined;
 
