@@ -37,7 +37,22 @@ const commentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+},
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+  });
+
+commentSchema.index({ author: 1, book: 1 });
+
+commentSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'author',
+    select: 'name',
+  }).select('-updatedAt');
+  next();
 });
+
 
 const Comment = mongoose.model("Comment", commentSchema);
 

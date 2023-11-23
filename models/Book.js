@@ -46,18 +46,30 @@ const bookSchema = new mongoose.Schema({
     minlength: [3, 'Category must be at least 3 characters long'],
     maxlength: [50, 'Category cannot exceed 50 characters'],
   },
-
-  // Comments associated with the book
-  comments: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Comment",
-    },
-  ],
 },
   {
     timestamps: true,
-  });
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+  }
+);
+
+bookSchema.index({ title: 1, author: 1 });
+
+// Virtual populate
+bookSchema.virtual('comments', {
+  ref: 'Comment',
+  foreignField: 'book',
+  localField: '_id'
+});
+
+bookSchema.pre(/^findOne/, function (next) {
+  this.populate({
+    path: 'reviews',
+    select: '-__v'
+  })
+  next();
+});
 
 const Book = mongoose.model("Book", bookSchema);
 
