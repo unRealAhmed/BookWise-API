@@ -7,6 +7,8 @@ const AppError = require('../utils/appErrors')
 const Email = require('../utils/email')
 const asyncHandler = require('../utils/asyncHandler')
 const { resetHtmlTemplate } = require('../utils/resetPasswordTemplate')
+const Activity = require('../models/Activity')
+
 
 // Helper function to send JWT token as a response
 const sendTokenResponse = (res, user, statusCode) => {
@@ -227,6 +229,15 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
   user.password = req.body.newPassword;
   user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
+
+  const activity = new Activity({
+    category: "Update Password",
+    user_id: {
+      id: req.user._id,
+      username: req.user.username,
+    },
+  });
+  await activity.save();
 
   user.password = undefined;
 
