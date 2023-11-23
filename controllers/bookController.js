@@ -4,10 +4,10 @@ const Book = require("../models/Book");
 const Issue = require("../models/Issue");
 const asyncHandler = require("../utils/asyncHandler")
 const AppError = require("../utils/appErrors")
-// const APIFeatures = require("../utils/apiFeatures")
+const APIFeatures = require("../utils/apiFeatures")
 
 
-exports.postIssueBook = asyncHandler(async (req, res, next) => {
+exports.issueBook = asyncHandler(async (req, res, next) => {
   if (req.user.violationFlag) {
     return next(new AppError("You are flagged for violating rules/delay on returning books/paying fines. Untill the flag is lifted, You can't issue any books", 400))
   }
@@ -68,7 +68,7 @@ exports.postIssueBook = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, message: 'Book issued successfully' });
 });
 
-exports.postRenewBook = async (req, res, next) => {
+exports.renewBook = async (req, res, next) => {
   const searchObj = {
     user_id: {
       id: req.user._id,
@@ -113,7 +113,7 @@ exports.postRenewBook = async (req, res, next) => {
   res.status(200).json({ success: true, message: 'Book renewal successful' });
 };
 
-exports.postReturnBook = async (req, res, next) => {
+exports.returnBook = async (req, res, next) => {
   // Finding the position
   const { bookId } = req.params;
   const position = req.user.bookIssueInfo.indexOf(bookId);
@@ -165,3 +165,36 @@ exports.postReturnBook = async (req, res, next) => {
   res.status(200).json({ success: true, message: 'Book returned successfully' });
 };
 
+exports.getAllBooks = asyncHandler(async (req, res, next) => {
+
+  // Create an APIFeatures instance to handle filtering, sorting, field selection, and pagination.
+  const features = new APIFeatures(Book.find(), req.query)
+    .filter()
+    .sort()
+    .paginate()
+    .selectFields();
+
+  const books = await features.query;
+
+  // SEND RESPONSE
+  res.status(200).json({
+    status: 'success',
+    results: books.length,
+    books
+  });
+});
+
+exports.getSingleBook = asyncHandler(async (req, res, next) => {
+
+  const book = await Book.findById(req.params.id);
+
+  if (!book) {
+    return next(new AppError(`No Book found with that ID`, 404));
+  }
+
+  // Send the retrieved document as a response.
+  res.status(200).json({
+    status: 'success',
+    book
+  });
+});
