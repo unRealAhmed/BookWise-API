@@ -54,7 +54,10 @@ const bookSchema = new mongoose.Schema({
       ref: "Comment",
     },
   ],
-});
+},
+  {
+    timestamps: true,
+  });
 
 const Book = mongoose.model("Book", bookSchema);
 
