@@ -28,6 +28,7 @@ exports.getAllUsers = asyncHandler(async (req, res, next) => {
     users
   });
 });
+
 exports.getSingleUser = asyncHandler(async (req, res, next) => {
 
   const user = await User.findById(req.params.id);
