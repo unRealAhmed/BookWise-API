@@ -100,7 +100,7 @@ exports.showActivitiesByCategory = asyncHandler(async (req, res, next) => {
   })
 });
 
-exports.deleteUser = async (req, res, next) => {
+exports.deleteUser = asyncHandler(async (req, res, next) => {
   const { userId } = req.params;
   const user = await User.findById(userId);
   await user.remove();
@@ -114,7 +114,7 @@ exports.deleteUser = async (req, res, next) => {
     status: "success",
     data: null
   })
-};
+});
 
 exports.addNewBook = asyncHandler(async (req, res, next) => {
   const bookInfo = req.body.book;
@@ -125,8 +125,7 @@ exports.addNewBook = asyncHandler(async (req, res, next) => {
     return next(new AppError("This book is already registered in inventory", 400))
   }
 
-  const newBook = new Book(bookInfo);
-  await newBook.save();
+  const newBook = await Book.create(bookInfo);
 
   res.status(200).json({
     status: "success",
