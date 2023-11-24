@@ -53,7 +53,7 @@ exports.deleteBook = asyncHandler(async (req, res, next) => {
     return next(new AppError('No book with that id', 404))
   }
 
-  await book.remove();
+  await book.deleteOne();
 
   res.status(204).json({
     status: "success",
@@ -70,12 +70,12 @@ exports.flagUser = asyncHandler(async (req, res, next) => {
   }
 
   user.violationFlag = !user.violationFlag;
-  await user.save();
+  await user.save({ validateBeforeSave: false });
 
   const flagStatus = user.violationFlag ? 'flagged' : 'unflagged';
 
   res.json({
-    message: `User ${user.firstName} ${user.lastName} is ${flagStatus}!`
+    message: `User ${user.name} is ${flagStatus}!`
   });
 });
 
