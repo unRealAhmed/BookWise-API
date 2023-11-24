@@ -6,20 +6,11 @@ const Comment = require("../models/Comment");
 const Activity = require("../models/Activity")
 const asyncHandler = require("../utils/asyncHandler")
 const AppError = require("../utils/appErrors")
-const APIFeatures = require("../utils/apiFeatures")
 
 ////////// Admin Access
 
 exports.getAllUsers = asyncHandler(async (req, res, next) => {
-
-  // Create an APIFeatures instance to handle filtering, sorting, field selection, and pagination.
-  const features = new APIFeatures(User.find(), req.query)
-    .filter()
-    .sort()
-    .paginate()
-    .selectFields();
-
-  const users = await features.query;
+  const users = await User.find()
 
   // SEND RESPONSE
   res.status(200).json({
