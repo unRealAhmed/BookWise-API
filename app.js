@@ -37,7 +37,7 @@ app.options("*", cors());
 app.use(express.json({ limit: '100kb' }));
 
 // Serve static files
-app.use(express.static('./public'));
+app.use(express.static('./documentation'));
 
 // Rate limiting middleware to prevent abuse
 app.use('/api', rateLimit({
