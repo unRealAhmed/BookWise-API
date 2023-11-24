@@ -13,6 +13,11 @@ const hpp = require('hpp');
 const compression = require("compression");
 const connectDatabase = require('./utils/dataBase');
 const errorController = require("./controllers/errorController");
+const adminRouter = require('./routes/adminRoutes');
+const authRouter = require('./routes/authRoutes');
+const bookRouter = require('./routes/bookRoutes');
+const commentRouter = require('./routes/commentRoutes');
+const userRouter = require('./routes/userRoutes');
 
 // Initialize Express app 
 const app = express();
@@ -31,6 +36,8 @@ app.use(cors());
 app.options("*", cors());
 app.use(express.json({ limit: '100kb' }));
 
+// Serve static files
+app.use(express.static('./public'));
 
 // Rate limiting middleware to prevent abuse
 app.use('/api', rateLimit({
@@ -41,6 +48,11 @@ app.use('/api', rateLimit({
 
 //ROUTES
 
+app.use('/api/v1/admins', adminRouter)
+app.use('/api/v1/users', userRouter)
+app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/books', bookRouter)
+app.use('/api/v1/comments', commentRouter)
 
 // Connect to the database
 connectDatabase();
