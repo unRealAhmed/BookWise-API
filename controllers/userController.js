@@ -85,12 +85,13 @@ const upload = multer({
 });
 
 // Middleware to handle single photo upload
-exports.uploadUserPhoto = upload.single('photo');
+exports.uploadUserPhoto = upload.single('image');
 
 // Middleware to resize the uploaded user photo
 exports.resizeUserPhoto = asyncHandler(async (req, res, next) => {
   // Check if there's no file to process
   if (!req.file) return next();
+
   const user = await User.findById(req.user.id);
 
   // Generate a unique filename
@@ -98,10 +99,14 @@ exports.resizeUserPhoto = asyncHandler(async (req, res, next) => {
 
   // Resize the image and convert it to jpeg format with quality adjustment
   await sharp(req.file.buffer)
-    .resize(500, 500)
+    .resize(349, 708)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
     .toFile(`public/img/users/${req.file.filename}`);
+
+  // Update the user document with the new image filename
+  user.image = req.file.filename;
+  await user.save({ validateBeforeSave: false });
 
   const activity = new Activity({
     category: "Upload Photo",
@@ -111,7 +116,6 @@ exports.resizeUserPhoto = asyncHandler(async (req, res, next) => {
     },
   });
   await activity.save();
-
   next();
 });
 
@@ -178,8 +182,8 @@ exports.updateUserProfile = asyncHandler(async (req, res, next) => {
 exports.deleteUserAccount = async (req, res, next) => {
   const userId = req.user._id;
 
-  const user = await User.findById(userId);
-  await user.remove();
+  // Use deleteOne or deleteMany instead of remove
+  await User.deleteOne({ _id: userId });
 
   await Issue.deleteMany({ "user_id.id": userId });
   await Comment.deleteMany({ "author.id": userId });
@@ -188,5 +192,5 @@ exports.deleteUserAccount = async (req, res, next) => {
   res.status(204).json({
     status: "success",
     data: null
-  })
+  });
 };
