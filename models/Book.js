@@ -65,11 +65,12 @@ bookSchema.virtual('comments', {
 
 bookSchema.pre(/^findOne/, function (next) {
   this.populate({
-    path: 'reviews',
+    path: 'comments',
     select: '-__v'
   })
   next();
 });
+
 
 const Book = mongoose.model("Book", bookSchema);
 

@@ -23,7 +23,6 @@ exports.issueBook = asyncHandler(async (req, res, next) => {
   }
 
   // registering issue
-  book.stock -= 1;
   const issue = new Issue({
     book_info: {
       id: book._id,
@@ -38,6 +37,7 @@ exports.issueBook = asyncHandler(async (req, res, next) => {
       username: user.userName,
     },
   });
+  book.stock -= 1;
 
   // putting issue record on individual user document
   user.bookIssueInfo.push(book._id);
@@ -60,9 +60,9 @@ exports.issueBook = asyncHandler(async (req, res, next) => {
     },
   });
 
-  await issue.save({ validateBeforeSave: false });
+  await issue.save();
   await user.save({ validateBeforeSave: false });
-  await book.save({ validateBeforeSave: false });
+  await book.save();
   await activity.save({ validateBeforeSave: false });
 
   res.status(200).json({ success: true, message: 'Book issued successfully' });
@@ -70,13 +70,11 @@ exports.issueBook = asyncHandler(async (req, res, next) => {
 
 exports.renewBook = async (req, res, next) => {
   const searchObj = {
-    user_id: {
-      id: req.user._id,
-    },
-    book_info: {
-      id: req.params.bookId,
-    },
+    'user_id.id': req.user._id,
+    'book_info.id': req.params.bookId,
   };
+
+  // console.log(searchObj);
 
   const issue = await Issue.findOne(searchObj);
 
@@ -108,7 +106,7 @@ exports.renewBook = async (req, res, next) => {
   });
 
   await activity.save({ validateBeforeSave: false });
-  await issue.save({ validateBeforeSave: false });
+  await issue.save();
 
   res.status(200).json({ success: true, message: 'Book renewal successful' });
 };
@@ -129,15 +127,13 @@ exports.returnBook = async (req, res, next) => {
 
   // Removing issue
   const issue = await Issue.findOne({
-    user_id: {
-      id: req.user._id,
-    }
+    'user_id.id': req.user._id,
   });
   if (!issue) {
     return next(new AppError('Issue not found', 404))
   }
 
-  await issue.remove();
+  await issue.deleteOne();
 
   // Popping book issue info from user
   req.user.bookIssueInfo.splice(position, 1);
@@ -172,10 +168,10 @@ exports.getAllBooks = asyncHandler(async (req, res, next) => {
     .filter()
     .sort()
     .paginate()
-    .selectFields();
+    .selectFields('title author description category');
 
   const books = await features.query;
-
+  books.stock = undefined
   // SEND RESPONSE
   res.status(200).json({
     status: 'success',
