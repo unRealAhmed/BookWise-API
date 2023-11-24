@@ -1,10 +1,9 @@
-# Library Management System
+# BookWise-API
 
-![Library Management System Logo/Image]
 
 ## Overview
 
-The Library Management System is an online platform built using MongoDB, Express.js, and Node.js. It is designed to efficiently manage library resources, including books, users, and administrators. The system supports key functionalities such as borrowing, creating, renewing, and returning books. Authentication ensures secure access, and additional features include comments and an activity tracker.
+BookWise-API is an online platform built using MongoDB, Express.js, and Node.js. It is designed to efficiently manage library resources, including books, users, and administrators. The system supports key functionalities such as borrowing, creating, renewing, and returning books. Authentication ensures secure access, and additional features include comments and an activity tracker.
 
 ## Table of Contents
 
